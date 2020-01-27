@@ -26,6 +26,8 @@ namespace SiteParser
 			services.AddRazorPages();
 
 			services.AddElasticSearchDatabase(Configuration);
+			services.AddHttpClient(Configuration, "PageDownloader");
+			services.AddImplementation();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

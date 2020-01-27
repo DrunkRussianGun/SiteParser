@@ -27,5 +27,12 @@ namespace SiteParser.Implementation.Database
 
             return response.Documents.ToArray();
         }
+
+        public async Task InsertAsync(IndexedPage page)
+        {
+            var response = await _client.IndexAsync(page, index => index
+                .Id(page.Url.ToString())
+            );
+        }
     }
 }
