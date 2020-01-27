@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using MoreLinq;
 using SiteParser.Implementation.Database;
 using SiteParser.Implementation.Indexing;
 using SiteParser.Models;
@@ -11,23 +14,78 @@ namespace SiteParser.Implementation
 	{
 		private readonly Downloader _downloader;
 		private readonly ElasticSearchClient _database;
+		private readonly UrlFilter _urlFilter;
 
-		public Scanner(Downloader downloader, ElasticSearchClient database)
+		public Scanner(Downloader downloader, ElasticSearchClient database, UrlFilter urlFilter = null)
 		{
 			_downloader = downloader;
 			_database = database;
+			_urlFilter = urlFilter ?? new UrlFilter();
 		}
 
 		public async Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
 		{
-			var page = await _downloader.DownloadPageAsync(pageUrl);
+			var indexedUrls = new ConcurrentDictionary<Uri, byte>();
+			var urlsToIndex = new ConcurrentDictionary<Uri, byte>();
+			urlsToIndex.TryAdd(pageUrl, default);
 			
-			var parsedHtml = HtmlParser.ParseHtml(page, pageUrl);
+			var semaphore = new SemaphoreSlim(8);
+			
+			var indexingTasks = new ConcurrentDictionary<Task, byte>();
+			var completedIndexingTasks = new ConcurrentStack<Task>();
+			while (!urlsToIndex.IsEmpty)
+			{
+				var currentUrl = urlsToIndex.Keys.First();
+				urlsToIndex.TryRemove(currentUrl, out _);
+				indexedUrls.TryAdd(currentUrl, default);
+
+				semaphore.Wait();
+				indexingTasks.TryAdd(
+				  ScanPageAsync(currentUrl, pageUrl, urlsToIndex, indexedUrls, maxLinksOnPageCount)
+						.ContinueWith(task =>
+						{
+							 semaphore.Release();
+							 indexingTasks.TryRemove(task, out _);
+							 completedIndexingTasks.Push(task);
+						}),
+				  default
+				);
+
+				while (urlsToIndex.IsEmpty)
+				{
+				  var indexingTask = indexingTasks.Keys.FirstOrDefault();
+				  if (indexingTask == null)
+						break;
+				  
+				  indexingTasks.TryRemove(indexingTask, out _);
+				  indexingTask.Wait();
+				}
+			}
+			
+			return new ScanResult(indexedUrls.Keys.ToArray());
+		}
+
+		private async Task ScanPageAsync(
+			Uri currentUrl,
+			Uri baseUrl,
+			ConcurrentDictionary<Uri, byte> urlsToIndex,
+			ConcurrentDictionary<Uri, byte> indexedUrls,
+			int maxLinksOnPageCount)
+		{
+			
+			var page = await _downloader.DownloadPageAsync(currentUrl);
+			
+			var parsedHtml = HtmlParser.ParseHtml(page, baseUrl);
+
+			var filteredLinks = _urlFilter.Filter(parsedHtml.Links, baseUrl);
+			filteredLinks
+				.Where(url => !indexedUrls.ContainsKey(url))
+				.Take(maxLinksOnPageCount)
+				.ForEach(uri => urlsToIndex.TryAdd(uri, default));
+			
 #pragma warning disable 4014
-			_database.InsertAsync(new ScannedPage(pageUrl, parsedHtml.Text));
+			_database.InsertAsync(new ScannedPage(currentUrl, parsedHtml.Text));
 #pragma warning restore 4014
-			
-			return new ScanResult(new[] {pageUrl});
 		}
 	}
 }
