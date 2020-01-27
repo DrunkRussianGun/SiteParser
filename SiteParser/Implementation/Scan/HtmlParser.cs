@@ -73,6 +73,7 @@ namespace SiteParser.Implementation.Scan
 			var parser = new AngleSharp.Html.Parser.HtmlParser();
 			var document = parser.ParseDocument(htmlText);
 			var href = new List<Uri>();
+			var hostUrl = new Uri(baseUrl.GetLeftPart(UriPartial.Authority));
 			foreach (var element in document.QuerySelectorAll("a"))
 			{
 				var el = element.GetAttribute("href");
@@ -81,7 +82,7 @@ namespace SiteParser.Implementation.Scan
 					var hrefAttribute = element.GetAttribute("href");
 					if (
 						Uri.TryCreate(hrefAttribute, UriKind.Absolute, out var link)
-						|| Uri.TryCreate(baseUrl, hrefAttribute, out link)
+						|| Uri.TryCreate(hostUrl, hrefAttribute, out link)
 					)
 					{
 						if (link.Scheme != Uri.UriSchemeHttp && link.Scheme != Uri.UriSchemeHttps)
