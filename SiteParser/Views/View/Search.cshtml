@@ -1,5 +1,58 @@
 ﻿@{
-    ViewBag.Title = "Search page";
+    ViewBag.Title = "Поиск";
 }
 
-<h1>In development</h1>
+<div>
+    <div>
+        Домен:
+        <input id="domainInput" type="text" required/>
+    </div>
+    <div>
+        <button class="link" onclick="search()">Поиск</button>
+    </div>
+</div>
+
+<div>
+    <table id="searchResultsTable" class="sortable">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Страница</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $('#queryInput').keydown(function (e) {
+        if (e.keyCode === 13) {
+            search();
+        }
+    });
+    
+    function search() {
+        $(document).ready(function () {
+            let domain = document.getElementById("domainInput").value;
+
+            fetch('api/Search?Query=' + query).then(function (response) {
+                response.json().then(function (parsedJson) {
+                    let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
+                    
+                });
+            });
+        });
+    }
+    
+    function addRow(table, cells) {
+        let row = document.createElement("tr");
+        table.appendChild(row);
+        
+        for (let i = 0; i < cells.length; ++i) {
+            let cell = document.createElement("td");
+            row.appendChild(cell);
+            cell.innerText = cells[i];
+        }
+    }
+</script>
