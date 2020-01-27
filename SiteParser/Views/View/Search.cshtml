@@ -42,7 +42,11 @@
 
             fetch('/Search/Search?url=' + domainUrl).then(function (response) {
                 response.json().then(function (pages) {
-                    let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
+                    let table = document.getElementById('searchResultsTable');
+                    let oldTableBody = table.getElementsByTagName('tbody')[0];
+                    let tableBody = document.createElement('tbody');
+                    table.replaceChild(tableBody, oldTableBody);
+                    
                     for (let i = 0; i < pages.length; ++i) {
                         addRow(tableBody, [pages[i].url, pages[i].text.substr(0, 256)]);
                     }

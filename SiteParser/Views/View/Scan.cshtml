@@ -57,7 +57,12 @@
                 
                 response.json().then(function (json) {
                     let pagesUrls = json.pagesUrls;
-                    let tableBody = document.getElementById('scanResultsTable').getElementsByTagName('tbody')[0];
+                    
+                    let table = document.getElementById('scanResultsTable');
+                    let oldTableBody = table.getElementsByTagName('tbody')[0];
+                    let tableBody = document.createElement('tbody');
+                    table.replaceChild(tableBody, oldTableBody);
+                    
                     for (let i = 0; i < pagesUrls.length; ++i) {
                         addRow(tableBody, [pagesUrls[i]]);
                     }
