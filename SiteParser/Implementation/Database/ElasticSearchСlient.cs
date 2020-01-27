@@ -28,6 +28,13 @@ namespace SiteParser.Implementation.Database
             return response.Documents.ToArray();
         }
 
+        public async Task<ScannedPage[]> GetAllAsync()
+        {
+            var response = await _client.SearchAsync<ScannedPage>();
+
+            return response.Documents.ToArray();
+        }
+
         public async Task InsertAsync(ScannedPage page)
         {
             var response = await _client.IndexAsync(page, index => index

@@ -6,7 +6,7 @@ namespace SiteParser.Implementation.Indexing
 {
 	public class UrlFilter
 	{
-		public Uri[] Filter(IEnumerable<Uri> urls, Uri domainUrl)
+		public HashSet<Uri> Filter(IEnumerable<Uri> urls, Uri domainUrl)
 		{
 			var host = domainUrl.Host;
 			var hostWithDotBefore = '.' + host;
@@ -16,7 +16,7 @@ namespace SiteParser.Implementation.Indexing
 					(uri.Host == domainUrl.Host || uri.Host.EndsWith(hostWithDotBefore)) &&
 					GetSegments(uri).StartsWith(segments)
 				)
-				.ToArray();
+				.ToHashSet();
 		}
 
 		private static string GetSegments(Uri url)
