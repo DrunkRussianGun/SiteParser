@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -86,7 +87,12 @@ namespace SiteParser.Implementation.Scan
 						if (link.Scheme != Uri.UriSchemeHttp && link.Scheme != Uri.UriSchemeHttps)
 							continue;
 						if (!string.IsNullOrEmpty(link.Query))
-							continue;
+						{
+							var linkString = link.ToString();
+							var queryBeginning = linkString.IndexOf('?');
+							link = new Uri(linkString.Substring(0, queryBeginning));
+						}
+						Debug.Assert(string.IsNullOrEmpty(link.Query), "Query параметры в ссылке не пусты");
 
 						href.Add(link);
 					}
