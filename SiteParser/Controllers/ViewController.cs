@@ -9,5 +9,11 @@ namespace SiteParser.Controllers
         {
             return View();
         }
+        
+        [HttpGet]
+        public IActionResult Scan()
+        {
+            return View();
+        }
     }
 }

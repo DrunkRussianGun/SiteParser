@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = "Сканирование";
+}
+
+<div>
+    <div>
+        URL:
+        <input id="urlInput" type="text" required/>
+    </div>
+    <div>
+        Макс. глубина: 
+        <input id="maxDepthInput" type="number" required/>
+    </div>
+    <div>
+        Макс. количество ссылок на странице: 
+        <input id="maxLinkCountInput" type="number" required/>
+    </div>
+    <div>
+        <button class="submit" onclick="scan()">Сканировать</button>
+    </div>
+</div>
+
+<div>
+    <table id="scanResultsTable" class="sortable">
+        <thead>
+            <tr>
+                <th>Отсканированные URL</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $('#queryInput').keydown(function (e) {
+        if (e.keyCode === 13) {
+            scan();
+        }
+    });
+    
+    function scan() {
+        $(document).ready(function () {
+            let url = document.getElementById("urlInput").value;
+
+            fetch('/Scan/Scan?pageUrl=' + url, {
+                method: 'POST'
+            }).then(function (response) {
+                if (response.status !== 200) {
+                    response.text().then(function (text) {
+                        alert(text);
+                    });
+                    return;
+                }
+                
+                response.json().then(function (json) {
+                    let pagesUrls = json.pagesUrls;
+                    
+                    let tableBody = document.getElementById('scanResultsTable').getElementsByTagName('tbody')[0];
+                    for (let i = 0; i < pagesUrls.length; ++i) {
+                        addRow(tableBody, [pagesUrls[i]]);
+                    }
+                });
+            });
+        });
+    }
+    
+    function addRow(table, cells) {
+        let row = document.createElement("tr");
+        table.appendChild(row);
+        
+        for (let i = 0; i < cells.length; ++i) {
+            let cell = document.createElement("td");
+            row.appendChild(cell);
+            cell.innerText = cells[i];
+        }
+    }
+</script>

@@ -3,12 +3,16 @@
 }
 
 <div>
+    <a asp-action="Scan">Перейти к сканированию</a>
+</div>
+
+<div>
     <div>
         Домен:
         <input id="domainInput" type="text" required/>
     </div>
     <div>
-        <button class="link" onclick="search()">Поиск</button>
+        <button class="submit" onclick="search()">Поиск</button>
     </div>
 </div>
 
@@ -36,8 +40,8 @@
         $(document).ready(function () {
             let domainUrl = document.getElementById("domainInput").value;
 
-            fetch('Search/Search?url=' + domainUrl).then(function (response) {
-                response.json().then(function (parsedJson) {
+            fetch('/Search/Search?url=' + domainUrl).then(function (response) {
+                response.json().then(function (json) {
                     let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
                     
                 });
