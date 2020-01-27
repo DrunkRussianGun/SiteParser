@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MoreLinq;
 using SiteParser.Implementation.Database;
-using SiteParser.Implementation.Indexing;
+using SiteParser.Implementation.Scan;
 using SiteParser.Models;
 
 namespace SiteParser.Implementation
@@ -25,49 +25,49 @@ namespace SiteParser.Implementation
 
 		public Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
 		{
-			var indexedUrls = new ConcurrentDictionary<Uri, byte>();
-			var urlsToIndex = new ConcurrentDictionary<Uri, int>();
-			var urlsNotToIndex = new ConcurrentDictionary<Uri, byte>();
-			urlsToIndex.TryAdd(pageUrl, 1);
+			var scannedUrls = new ConcurrentDictionary<Uri, byte>();
+			var urlsToScan = new ConcurrentDictionary<Uri, int>();
+			var urlsNotToScan = new ConcurrentDictionary<Uri, byte>();
+			urlsToScan.TryAdd(pageUrl, 1);
 			
 			var semaphore = new SemaphoreSlim(32);
 			
-			var indexingTasks = new ConcurrentDictionary<Task, byte>();
-			var completedIndexingTasks = new ConcurrentStack<Task>();
-			while (!urlsToIndex.IsEmpty)
+			var scanTasks = new ConcurrentDictionary<Task, byte>();
+			var completedScanTasks = new ConcurrentStack<Task>();
+			while (!urlsToScan.IsEmpty)
 			{
-				var currentUrl = urlsToIndex.Keys.First();
-				urlsToIndex.TryRemove(currentUrl, out var currentDepth);
+				var currentUrl = urlsToScan.Keys.First();
+				urlsToScan.TryRemove(currentUrl, out var currentDepth);
 				if (currentDepth > maxDepth)
 				{
-					urlsNotToIndex.TryAdd(currentUrl, default);
+					urlsNotToScan.TryAdd(currentUrl, default);
 					continue;
 				}
 
 				semaphore.Wait();
-				indexingTasks.TryAdd(
-				  ScanPageAsync(currentUrl, currentDepth, pageUrl, urlsNotToIndex, urlsToIndex, indexedUrls, maxLinksOnPageCount)
+				scanTasks.TryAdd(
+				  ScanPageAsync(currentUrl, currentDepth, pageUrl, urlsNotToScan, urlsToScan, scannedUrls, maxLinksOnPageCount)
 						.ContinueWith(task =>
 						{
 							 semaphore.Release();
-							 indexingTasks.TryRemove(task, out _);
-							 completedIndexingTasks.Push(task);
+							 scanTasks.TryRemove(task, out _);
+							 completedScanTasks.Push(task);
 						}),
 				  default
 				);
 
-				while (urlsToIndex.IsEmpty)
+				while (urlsToScan.IsEmpty)
 				{
-				  var indexingTask = indexingTasks.Keys.FirstOrDefault();
-				  if (indexingTask == null)
+				  var scanTask = scanTasks.Keys.FirstOrDefault();
+				  if (scanTask == null)
 						break;
 				  
-				  indexingTasks.TryRemove(indexingTask, out _);
-				  indexingTask.Wait();
+				  scanTasks.TryRemove(scanTask, out _);
+				  scanTask.Wait();
 				}
 			}
 
-			var result = new ScanResult(indexedUrls.Keys.ToArray());
+			var result = new ScanResult(scannedUrls.Keys.ToArray());
 			return Task.FromResult(result);
 		}
 
@@ -75,9 +75,9 @@ namespace SiteParser.Implementation
 			Uri currentUrl,
 			int currentDepth,
 			Uri baseUrl,
-			ConcurrentDictionary<Uri, byte> urlsNotToIndex,
-			ConcurrentDictionary<Uri, int> urlsToIndex,
-			ConcurrentDictionary<Uri, byte> indexedUrls,
+			ConcurrentDictionary<Uri, byte> urlsNotToScan,
+			ConcurrentDictionary<Uri, int> urlsToScan,
+			ConcurrentDictionary<Uri, byte> scannedUrls,
 			int maxLinksOnPageCount)
 		{
 			
@@ -87,15 +87,15 @@ namespace SiteParser.Implementation
 
 			var filteredLinks = _urlFilter.Filter(parsedHtml.Links, baseUrl);
 			filteredLinks
-				.Where(url => !indexedUrls.ContainsKey(url))
-				.Where(url => !urlsNotToIndex.ContainsKey(url))
+				.Where(url => !scannedUrls.ContainsKey(url))
+				.Where(url => !urlsNotToScan.ContainsKey(url))
 				.Take(maxLinksOnPageCount)
-				.ForEach(uri => urlsToIndex.TryAdd(uri, currentDepth + 1));
+				.ForEach(uri => urlsToScan.TryAdd(uri, currentDepth + 1));
 			
 #pragma warning disable 4014
 			_database.InsertAsync(new ScannedPage(currentUrl, parsedHtml.Text));
 #pragma warning restore 4014
-			indexedUrls.TryAdd(currentUrl, default);
+			scannedUrls.TryAdd(currentUrl, default);
 		}
 	}
 }

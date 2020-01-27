@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SiteParser.Implementation.Indexing
+namespace SiteParser.Implementation.Scan
 {
     internal class ParsedHtml
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
-namespace SiteParser.Implementation.Indexing
+namespace SiteParser.Implementation.Scan
 {
 	internal static class HtmlParser
 	{

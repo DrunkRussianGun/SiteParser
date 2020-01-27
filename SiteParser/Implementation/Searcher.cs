@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using SiteParser.Implementation.Database;
-using SiteParser.Implementation.Indexing;
+using SiteParser.Implementation.Scan;
 using SiteParser.Models;
 
 namespace SiteParser.Implementation

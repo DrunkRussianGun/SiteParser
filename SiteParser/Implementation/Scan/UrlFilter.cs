@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SiteParser.Implementation.Indexing
+namespace SiteParser.Implementation.Scan
 {
 	public class UrlFilter
 	{
