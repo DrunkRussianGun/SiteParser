@@ -22,6 +22,7 @@ namespace SiteParser.Configuration
         public static void AddImplementation(this IServiceCollection services)
         {
             services.AddSingleton<Searcher>();
+            services.AddSingleton<Downloader>();
             services.AddSingleton<Indexer>();
         }
 
