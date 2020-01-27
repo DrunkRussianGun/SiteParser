@@ -15,7 +15,7 @@ namespace SiteParser.Controllers
 		}
 		
 		[HttpPost]
-		public async Task<IActionResult> Scan([FromBody] Uri pageUrl)
+		public async Task<IActionResult> Scan([FromQuery] Uri pageUrl)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
