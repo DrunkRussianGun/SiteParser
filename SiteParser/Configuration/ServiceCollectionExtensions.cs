@@ -4,6 +4,7 @@ using MoreLinq;
 using Nest;
 using SiteParser.Implementation;
 using SiteParser.Implementation.Database;
+using SiteParser.Models;
 
 namespace SiteParser.Configuration
 {
@@ -15,6 +16,10 @@ namespace SiteParser.Configuration
             services.AddSingleton(serviceProvider =>
                 new ElasticSearchClient(new ConnectionSettings(elasticSearchUrl)
                     .ThrowExceptions()
+                    .DefaultMappingFor<ScannedPage>(mapping => mapping
+                        .IndexName("pages")
+                        .IdProperty(page => page.Url)
+                    )
                 )
             );
         }
