@@ -17,7 +17,7 @@
 </div>
 
 <div>
-    <table id="searchResultsTable" class="sortable">
+    <table id="searchResultsTable" class="sortable" border="1">
         <thead>
             <tr>
                 <th>URL</th>
@@ -44,7 +44,7 @@
                 response.json().then(function (pages) {
                     let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
                     for (let i = 0; i < pages.length; ++i) {
-                        addRow(tableBody, [pages[i].url, pages[i].text]);
+                        addRow(tableBody, [pages[i].url, pages[i].text.substr(0, 256)]);
                     }
                 });
             });
