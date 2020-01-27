@@ -13,8 +13,8 @@ namespace SiteParser.Implementation.Scan
 			var segments = GetSegments(domainUrl);
 			return urls
 				.Where(uri =>
-					(uri.Host == domainUrl.Host || uri.Host.EndsWith(hostWithDotBefore)) &&
-					GetSegments(uri).StartsWith(segments)
+					(uri.Host == domainUrl.Host || uri.Host.EndsWith(hostWithDotBefore)) //&&
+					//GetSegments(uri).StartsWith(segments)
 				)
 				.ToHashSet();
 		}
