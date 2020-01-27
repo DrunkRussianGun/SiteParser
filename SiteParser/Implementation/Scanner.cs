@@ -23,14 +23,14 @@ namespace SiteParser.Implementation
 			_urlFilter = urlFilter ?? new UrlFilter();
 		}
 
-		public async Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
+		public Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
 		{
 			var indexedUrls = new ConcurrentDictionary<Uri, byte>();
 			var urlsToIndex = new ConcurrentDictionary<Uri, int>();
 			var urlsNotToIndex = new ConcurrentDictionary<Uri, byte>();
 			urlsToIndex.TryAdd(pageUrl, 1);
 			
-			var semaphore = new SemaphoreSlim(8);
+			var semaphore = new SemaphoreSlim(32);
 			
 			var indexingTasks = new ConcurrentDictionary<Task, byte>();
 			var completedIndexingTasks = new ConcurrentStack<Task>();
@@ -66,8 +66,9 @@ namespace SiteParser.Implementation
 				  indexingTask.Wait();
 				}
 			}
-			
-			return new ScanResult(indexedUrls.Keys.ToArray());
+
+			var result = new ScanResult(indexedUrls.Keys.ToArray());
+			return Task.FromResult(result);
 		}
 
 		private async Task ScanPageAsync(
