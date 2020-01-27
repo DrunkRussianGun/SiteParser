@@ -33,7 +33,6 @@ namespace SiteParser.Implementation
 			var semaphore = new SemaphoreSlim(32);
 			
 			var scanTasks = new ConcurrentDictionary<Task, byte>();
-			var completedScanTasks = new ConcurrentStack<Task>();
 			while (!urlsToScan.IsEmpty)
 			{
 				var currentUrl = urlsToScan.Keys.First();
@@ -51,7 +50,6 @@ namespace SiteParser.Implementation
 						{
 							 semaphore.Release();
 							 scanTasks.TryRemove(task, out _);
-							 completedScanTasks.Push(task);
 						}),
 				  default
 				);
