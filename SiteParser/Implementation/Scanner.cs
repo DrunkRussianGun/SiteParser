@@ -26,8 +26,8 @@ namespace SiteParser.Implementation
 		public async Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
 		{
 			var indexedUrls = new ConcurrentDictionary<Uri, byte>();
-			var urlsToIndex = new ConcurrentDictionary<Uri, byte>();
-			urlsToIndex.TryAdd(pageUrl, default);
+			var urlsToIndex = new ConcurrentDictionary<Uri, int>();
+			urlsToIndex.TryAdd(pageUrl, 1);
 			
 			var semaphore = new SemaphoreSlim(8);
 			
@@ -36,12 +36,15 @@ namespace SiteParser.Implementation
 			while (!urlsToIndex.IsEmpty)
 			{
 				var currentUrl = urlsToIndex.Keys.First();
-				urlsToIndex.TryRemove(currentUrl, out _);
+				urlsToIndex.TryRemove(currentUrl, out var currentDepth);
+				if (currentDepth > maxDepth)
+					continue;
+				
 				indexedUrls.TryAdd(currentUrl, default);
 
 				semaphore.Wait();
 				indexingTasks.TryAdd(
-				  ScanPageAsync(currentUrl, pageUrl, urlsToIndex, indexedUrls, maxLinksOnPageCount)
+				  ScanPageAsync(currentUrl, currentDepth, pageUrl, urlsToIndex, indexedUrls, maxLinksOnPageCount)
 						.ContinueWith(task =>
 						{
 							 semaphore.Release();
@@ -67,8 +70,9 @@ namespace SiteParser.Implementation
 
 		private async Task ScanPageAsync(
 			Uri currentUrl,
+			int currentDepth,
 			Uri baseUrl,
-			ConcurrentDictionary<Uri, byte> urlsToIndex,
+			ConcurrentDictionary<Uri, int> urlsToIndex,
 			ConcurrentDictionary<Uri, byte> indexedUrls,
 			int maxLinksOnPageCount)
 		{
@@ -81,7 +85,7 @@ namespace SiteParser.Implementation
 			filteredLinks
 				.Where(url => !indexedUrls.ContainsKey(url))
 				.Take(maxLinksOnPageCount)
-				.ForEach(uri => urlsToIndex.TryAdd(uri, default));
+				.ForEach(uri => urlsToIndex.TryAdd(uri, currentDepth + 1));
 			
 #pragma warning disable 4014
 			_database.InsertAsync(new ScannedPage(currentUrl, parsedHtml.Text));
