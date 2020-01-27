@@ -23,7 +23,7 @@ namespace SiteParser.Implementation
 			var pages = await _database.GetAllAsync();
 
 			var urls = pages.Select(page => page.Url);
-			var filteredUrls = _urlFilter.Filter(urls, domainUrl);
+			var filteredUrls = _urlFilter.Filter(urls, domainUrl, true);
 
 			return pages
 				.Where(page => filteredUrls.Contains(page.Url))
