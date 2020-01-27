@@ -15,15 +15,15 @@ namespace SiteParser.Controllers
 			_searcher = searcher;
 		}
 		
-		[HttpPost]
-		public async Task<ActionResult<IndexedPage[]>> Search([FromBody] Uri domainUrl)
+		[HttpGet]
+		public async Task<ActionResult<IndexedPage[]>> Search([FromQuery] Uri url)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
-			if (!domainUrl.IsAbsoluteUri)
-				return BadRequest($"URL \"{domainUrl}\" не является абсолютным.");
+			if (!url.IsAbsoluteUri)
+				return BadRequest($"URL \"{url}\" не является абсолютным.");
 
-			var searchResult = await _searcher.SearchAsync(domainUrl);
+			var searchResult = await _searcher.SearchAsync(url);
 
 			return Ok(searchResult);
 		}
