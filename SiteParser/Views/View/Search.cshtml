@@ -34,9 +34,9 @@
     
     function search() {
         $(document).ready(function () {
-            let domain = document.getElementById("domainInput").value;
+            let domainUrl = document.getElementById("domainInput").value;
 
-            fetch('api/Search?Query=' + query).then(function (response) {
+            fetch('Search/Search?url=' + domainUrl).then(function (response) {
                 response.json().then(function (parsedJson) {
                     let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
                     
