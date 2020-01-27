@@ -67,6 +67,7 @@ namespace SiteParser.Implementation
 				}
 			}
 
+			Task.WaitAll(scanTasks.Keys.ToArray());
 			var result = new ScanResult(scannedUrls.Keys.ToArray());
 			return Task.FromResult(result);
 		}
