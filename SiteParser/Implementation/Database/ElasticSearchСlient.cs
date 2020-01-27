@@ -30,9 +30,14 @@ namespace SiteParser.Implementation.Database
 
         public async Task<ScannedPage[]> GetAllAsync()
         {
-            var response = await _client.SearchAsync<ScannedPage>();
+            var countResponse = await _client.CountAsync<ScannedPage>();
+            var pagesCount = countResponse.Count;
 
-            return response.Documents.ToArray();
+            var searchResponse = await _client.SearchAsync<ScannedPage>(search => search
+                .Size((int)pagesCount)
+            );
+
+            return searchResponse.Documents.ToArray();
         }
 
         public async Task InsertAsync(ScannedPage page)
