@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SiteParser.Implementation;
-using SiteParser.Models;
 
 namespace SiteParser.Controllers
 {
@@ -16,7 +15,7 @@ namespace SiteParser.Controllers
 		}
 		
 		[HttpGet]
-		public async Task<ActionResult<IndexedPage[]>> Search([FromQuery] Uri url)
+		public async Task<IActionResult> Search([FromQuery] Uri url)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
