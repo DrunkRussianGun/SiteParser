@@ -2,13 +2,13 @@
 
 namespace SiteParser.Models
 {
-	public class IndexedPage
+	public class ScannedPage
 	{
 		public Uri Url { get; }
 		
 		public string Text { get; }
 
-		public IndexedPage(Uri url, string text)
+		public ScannedPage(Uri url, string text)
 		{
 			Url = url;
 			Text = text;

@@ -5,24 +5,24 @@ using SiteParser.Implementation;
 
 namespace SiteParser.Controllers
 {
-	public class IndexController : ControllerBase
+	public class ScanController : ControllerBase
 	{
-		private readonly Indexer _indexer;
+		private readonly Scanner _scanner;
 
-		public IndexController(Indexer indexer)
+		public ScanController(Scanner scanner)
 		{
-			_indexer = indexer;
+			_scanner = scanner;
 		}
 		
 		[HttpPost]
-		public async Task<IActionResult> Index([FromBody] Uri pageUrl)
+		public async Task<IActionResult> Scan([FromBody] Uri pageUrl)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 			if (!pageUrl.IsAbsoluteUri)
 				return BadRequest($"URL \"{pageUrl}\" не является абсолютным.");
 
-			var result = await _indexer.IndexAsync(pageUrl);
+			var result = await _scanner.ScanAsync(pageUrl);
 
 			return Ok(result);
 		}

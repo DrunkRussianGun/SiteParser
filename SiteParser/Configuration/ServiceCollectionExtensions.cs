@@ -23,7 +23,7 @@ namespace SiteParser.Configuration
         {
             services.AddSingleton<Searcher>();
             services.AddSingleton<Downloader>();
-            services.AddSingleton<Indexer>();
+            services.AddSingleton<Scanner>();
         }
 
         public static void AddHttpClient(this IServiceCollection services, IConfiguration configuration, string clientName)

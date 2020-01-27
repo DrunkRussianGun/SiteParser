@@ -14,9 +14,9 @@ namespace SiteParser.Implementation.Database
             _client = new ElasticClient(connectionSettings);
         }
 
-        public async Task<IndexedPage[]> FindAsync(string domainUrl)
+        public async Task<ScannedPage[]> FindAsync(string domainUrl)
         {
-            var response = await _client.SearchAsync<IndexedPage>(search => search
+            var response = await _client.SearchAsync<ScannedPage>(search => search
                 .Query(q => q
                     .Term(t => t
                         .Field(page => page.Url)
@@ -28,7 +28,7 @@ namespace SiteParser.Implementation.Database
             return response.Documents.ToArray();
         }
 
-        public async Task InsertAsync(IndexedPage page)
+        public async Task InsertAsync(ScannedPage page)
         {
             var response = await _client.IndexAsync(page, index => index
                 .Id(page.Url.ToString())

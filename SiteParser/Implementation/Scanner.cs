@@ -6,27 +6,27 @@ using SiteParser.Models;
 
 namespace SiteParser.Implementation
 {
-	public class Indexer
+	public class Scanner
 	{
 		private readonly Downloader _downloader;
 		private readonly ElasticSearchClient _database;
 
-		public Indexer(Downloader downloader, ElasticSearchClient database)
+		public Scanner(Downloader downloader, ElasticSearchClient database)
 		{
 			_downloader = downloader;
 			_database = database;
 		}
 
-		public async Task<IndexingResult> IndexAsync(Uri pageUrl)
+		public async Task<ScanResult> ScanAsync(Uri pageUrl)
 		{
 			var page = await _downloader.DownloadPageAsync(pageUrl);
 			
 			var parsedHtml = HtmlParser.ParseHtml(page, pageUrl);
 #pragma warning disable 4014
-			_database.InsertAsync(new IndexedPage(pageUrl, parsedHtml.Text));
+			_database.InsertAsync(new ScannedPage(pageUrl, parsedHtml.Text));
 #pragma warning restore 4014
 			
-			return new IndexingResult(new[] {pageUrl});
+			return new ScanResult(new[] {pageUrl});
 		}
 	}
 }

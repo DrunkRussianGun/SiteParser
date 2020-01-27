@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace SiteParser.Models
 {
-	public class IndexingResult
+	public class ScanResult
 	{
 		public Uri[] PagesUrls { get; }
 
-		public IndexingResult(IEnumerable<Uri> urls)
+		public ScanResult(IEnumerable<Uri> urls)
 		{
 			PagesUrls = urls.ToArray();
 		}

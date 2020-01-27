@@ -14,7 +14,7 @@ namespace SiteParser.Implementation
 			_database = database;
 		}
 		
-		public async Task<IndexedPage[]> SearchAsync(Uri domainUrl)
+		public async Task<ScannedPage[]> SearchAsync(Uri domainUrl)
 		{
 			var pages = await _database.FindAsync(domainUrl.ToString());
 
