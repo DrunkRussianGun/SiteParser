@@ -41,9 +41,11 @@
             let domainUrl = document.getElementById("domainInput").value;
 
             fetch('/Search/Search?url=' + domainUrl).then(function (response) {
-                response.json().then(function (json) {
+                response.json().then(function (pages) {
                     let tableBody = document.getElementById('searchResultsTable').getElementsByTagName('tbody')[0];
-                    
+                    for (let i = 0; i < pages.length; ++i) {
+                        addRow(tableBody, [pages[i].url, pages[i].text]);
+                    }
                 });
             });
         });
