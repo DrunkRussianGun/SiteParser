@@ -13,7 +13,7 @@
     </div>
     <div>
         Макс. количество ссылок на странице: 
-        <input id="maxLinkCountInput" type="number" required/>
+        <input id="maxLinksOnPageCountInput" type="number" required/>
     </div>
     <div>
         <button class="submit" onclick="scan()">Сканировать</button>
@@ -42,8 +42,10 @@
     function scan() {
         $(document).ready(function () {
             let url = document.getElementById("urlInput").value;
+            let maxDepth = document.getElementById("maxDepthInput").value;
+            let maxLinksOnPageCount = document.getElementById("maxLinksOnPageCountInput").value;
 
-            fetch('/Scan/Scan?pageUrl=' + url, {
+            fetch('/Scan/Scan?pageUrl=' + url + '&maxDepth=' + maxDepth + '&maxLinksOnPageCount=' + maxLinksOnPageCount, {
                 method: 'POST'
             }).then(function (response) {
                 if (response.status !== 200) {

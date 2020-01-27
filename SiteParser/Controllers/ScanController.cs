@@ -15,14 +15,19 @@ namespace SiteParser.Controllers
 		}
 		
 		[HttpPost]
-		public async Task<IActionResult> Scan([FromQuery] Uri pageUrl)
+		public async Task<IActionResult> Scan(
+			[FromQuery] Uri pageUrl,
+			[FromQuery] int maxDepth,
+			[FromQuery] int maxLinksOnPageCount)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 			if (!pageUrl.IsAbsoluteUri)
 				return BadRequest($"URL \"{pageUrl}\" не является абсолютным.");
 
-			var result = await _scanner.ScanAsync(pageUrl);
+			// ReSharper disable PossibleInvalidOperationException
+			var result = await _scanner.ScanAsync(pageUrl, maxDepth, maxLinksOnPageCount);
+			// ReSharper restore PossibleInvalidOperationException
 
 			return Ok(result);
 		}

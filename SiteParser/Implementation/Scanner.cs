@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using SiteParser.Implementation.Database;
 using SiteParser.Implementation.Indexing;
@@ -17,7 +18,7 @@ namespace SiteParser.Implementation
 			_database = database;
 		}
 
-		public async Task<ScanResult> ScanAsync(Uri pageUrl)
+		public async Task<ScanResult> ScanAsync(Uri pageUrl, int maxDepth, int maxLinksOnPageCount)
 		{
 			var page = await _downloader.DownloadPageAsync(pageUrl);
 			
